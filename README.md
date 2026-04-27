@@ -71,6 +71,10 @@ Issues and pull requests are welcome.
 
 The intent of this tool is to stay **simple and easy** — please favor focused, surgical changes over large refactors.
 
+## Acknowledgments
+
+Co-developed by [@DaltonGOO](https://github.com/DaltonGOO) and Claude (Anthropic), via [Claude Code](https://claude.ai/code) — design decisions, gbXML/HAP compatibility tuning, and the code itself came out of pair-programming sessions.
+
 ## License
 
 [MIT](LICENSE)
