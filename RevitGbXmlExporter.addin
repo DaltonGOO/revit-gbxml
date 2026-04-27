@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>gbXML Exporter for HAP</Name>
+    <Assembly>RevitGbXmlExporter.dll</Assembly>
+    <AddInId>A7F3D2B1-8C4E-4F5A-9D6B-1E2F3A4B5C6D</AddInId>
+    <FullClassName>RevitGbXmlExporter.App</FullClassName>
+    <VendorId>DaltonGOO</VendorId>
+    <VendorDescription>The BIM Coordinator (github.com/DaltonGOO/revit-gbxml)</VendorDescription>
+  </AddIn>
+</RevitAddIns>

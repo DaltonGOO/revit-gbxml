@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>RevitGbXmlExporter</RootNamespace>
+    <AssemblyName>RevitGbXmlExporter</AssemblyName>
+    <Version>0.1.0</Version>
+    <Authors>The BIM Coordinator</Authors>
+    <Description>Custom gbXML exporter for Autodesk Revit, optimized for HAP Carrier compatibility.</Description>
+
+    <!-- Revit API. Defaults to 2025; override with `/p:RevitVersion=2026` to build
+         against the 2026 API. RevitApiPath assumes the standard install location. -->
+    <RevitVersion Condition="'$(RevitVersion)' == ''">2025</RevitVersion>
+    <RevitApiPath Condition="'$(RevitApiPath)' == ''">C:\Program Files\Autodesk\Revit $(RevitVersion)</RevitApiPath>
+
+    <!-- Do not copy Revit API DLLs to output -->
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="RevitAPI">
+      <HintPath>$(RevitApiPath)\RevitAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>$(RevitApiPath)\RevitAPIUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
