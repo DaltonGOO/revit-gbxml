@@ -19,7 +19,11 @@ Revit's built-in gbXML export has known compatibility issues with HAP. This tool
    - **Revit 2026**: `%APPDATA%\Autodesk\Revit\Addins\2026`
 
    The same DLL works in both — drop a copy in each folder if you use both versions.
-3. Restart Revit. The exporter shows up under the **Add-Ins** tab → **External Tools** → **gbXML Exporter for HAP**.
+3. Restart Revit. The exporter shows up on the **Add-Ins** tab.
+
+> **First-time gotchas**
+> - If Windows blocks the DLL (because it was downloaded from the internet), right-click `RevitGbXmlExporter.dll` → **Properties** → check **Unblock** at the bottom → **OK**. Otherwise Revit silently refuses to load it.
+> - The first time Revit loads the add-in it will show a security prompt about an unsigned assembly — choose **Always Load**.
 
 ## Usage
 
