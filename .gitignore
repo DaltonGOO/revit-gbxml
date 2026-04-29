@@ -55,6 +55,10 @@ Desktop.ini
 ## Local test/sample files (kept locally, not shipped in the repo)
 samples/
 
+## Release artifacts (built locally, attached to GitHub Releases)
+release-staging/
+*.zip
+
 ## Revit
 *.rfa
 *.rvt
