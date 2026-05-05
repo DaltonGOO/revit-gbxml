@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Revit gbXML Exporter for HAP</title>
+  <meta name="description" content="A simple, one-click Revit add-in that exports gbXML files Carrier HAP can actually read.">
+  <style>
+    :root {
+      --brand: #3a7bd5;
+      --brand-2: #00d2ff;
+      --ink: #222;
+      --muted: #555;
+      --bg: #f7f9fc;
+      --card: #fff;
+      --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --shadow-hover: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+    }
+
+    /* ---- top nav (back to main site) ---- */
+    .topnav {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 1rem 1.25rem 0;
+      font-size: 0.95rem;
+    }
+    .topnav a {
+      color: var(--brand);
+      text-decoration: none;
+    }
+    .topnav a:hover { text-decoration: underline; }
+
+    /* ---- hero ---- */
+    .site-hero {
+      background: linear-gradient(120deg, #3a7bd5 0%, #00d2ff 100%);
+      color: #fff;
+      border-radius: 1rem;
+      padding: 2.75rem 1.5rem 2.25rem;
+      margin: 1.5rem auto 2rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+    .site-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 .5rem;
+      letter-spacing: 1px;
+    }
+    .title-underline {
+      display: block;
+      height: 2px;
+      width: 0;
+      background: #fff;
+      margin: .25rem auto 1.25rem;
+    }
+    .site-desc {
+      font-size: 1.15rem;
+      margin: 0 auto 1.75rem;
+      max-width: 560px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 0.25em 0.8em;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+    }
+    .hero-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .hero-btn {
+      display: inline-block;
+      font-size: 1.05rem;
+      background: #fff;
+      color: var(--brand);
+      border: none;
+      border-radius: 8px;
+      padding: .7em 1.5em;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+      transition: background .2s, color .2s, transform .2s;
+      font-weight: 600;
+    }
+    .hero-btn:hover {
+      background: var(--brand);
+      color: #fff;
+      transform: scale(1.06);
+    }
+    .hero-btn.ghost {
+      background: transparent;
+      color: #fff;
+      border: 2px solid #fff;
+    }
+    .hero-btn.ghost:hover {
+      background: #fff;
+      color: var(--brand);
+    }
+
+    /* ---- content cards ---- */
+    .card {
+      background: var(--card);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 1.75rem 1.75rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: .75rem;
+      font-size: 1.4rem;
+      color: var(--ink);
+    }
+    .card p {
+      color: var(--muted);
+      margin: 0 0 .75rem;
+    }
+    .card p strong { color: var(--ink); }
+    .card a { color: var(--brand); }
+
+    /* ---- install steps ---- */
+    .steps {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      counter-reset: step;
+    }
+    .steps li {
+      position: relative;
+      padding: 0 0 1.25rem 3rem;
+      counter-increment: step;
+      color: var(--muted);
+    }
+    .steps li:last-child { padding-bottom: 0; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 50%;
+      background: linear-gradient(120deg, #3a7bd5 0%, #00d2ff 100%);
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .steps strong { color: var(--ink); }
+    code {
+      background: #eef3f9;
+      color: var(--ink);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.92em;
+      font-family: ui-monospace, 'Cascadia Code', Consolas, Menlo, monospace;
+    }
+    .note {
+      background: #f0f6ff;
+      border-left: 3px solid var(--brand);
+      padding: .75rem 1rem;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      border-radius: 0 6px 6px 0;
+    }
+
+    /* ---- compatibility chips ---- */
+    .chips {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-top: .25rem;
+    }
+    .chip {
+      background: #eef3f9;
+      color: var(--brand);
+      padding: .3em .8em;
+      border-radius: 999px;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    /* ---- footer ---- */
+    footer {
+      text-align: center;
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 2rem;
+    }
+    footer a { color: var(--brand); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .disclaimer {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .word { display: inline-block; will-change: transform, opacity; }
+
+    @media (max-width: 520px) {
+      .site-title { font-size: 1.6rem; }
+      .site-desc { font-size: 1rem; }
+      .hero-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="https://daltongoo.github.io/">&larr; back to Observation Room</a>
+  </nav>
+
+  <div class="container">
+
+    <section class="site-hero">
+      <span class="badge">BETA &middot; v0.1.0</span>
+      <h1 id="hero-title" class="site-title">Revit gbXML Exporter for HAP</h1>
+      <span class="title-underline"></span>
+      <p class="site-desc">
+        A one-click Revit add-in that exports a clean gbXML file
+        Carrier HAP can actually read &mdash; without the geometry headaches.
+      </p>
+      <div class="hero-links">
+        <a href="https://github.com/DaltonGOO/revit-gbxml/releases/latest" class="hero-btn">Download latest release</a>
+        <a href="https://github.com/DaltonGOO/revit-gbxml" class="hero-btn ghost">View on GitHub</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>What it is</h2>
+      <p>
+        A free Revit add-in that exports your project's rooms, walls, floors, and
+        openings to a <strong>gbXML</strong> file built for <strong>Carrier HAP</strong>
+        energy analysis. Pick what you want to export, click a button, hand the file to HAP.
+      </p>
+      <p style="margin-top:1rem;"><strong>Works with:</strong></p>
+      <div class="chips">
+        <span class="chip">Revit 2025</span>
+        <span class="chip">Revit 2026</span>
+        <span class="chip">Carrier HAP v6.2+</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Why I made it</h2>
+      <p>
+        Revit's built-in gbXML export is finicky with HAP. Geometry comes through wrong,
+        adjacencies don't line up, openings land in the wrong spot &mdash; and you end up
+        cleaning things up by hand or dropping the whole approach.
+      </p>
+      <p>
+        I wanted a <strong>one-click solution</strong> for the common MEP workflow:
+        open the model, run the export, get a file that imports into HAP without a fight.
+        That's the whole goal &mdash; do one job, do it cleanly.
+      </p>
+      <p>
+        It's intentionally focused, not a full energy-modeling platform. If you need
+        deep simulation tooling, there are bigger products out there. This is the
+        tool I wished existed for the everyday Revit-to-HAP handoff.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>How to install</h2>
+      <ol class="steps">
+        <li>
+          <strong>Download.</strong> Grab the
+          <a href="https://github.com/DaltonGOO/revit-gbxml/releases/latest">latest release</a>
+          and unzip it. You'll have two files: <code>RevitGbXmlExporter.dll</code> and
+          <code>RevitGbXmlExporter.addin</code>.
+        </li>
+        <li>
+          <strong>Copy to your Revit add-ins folder.</strong> Press <code>Win + R</code>,
+          paste the path for your Revit version, and drop both files in:
+          <div style="margin-top:.5rem;">
+            <div>Revit 2025 &rarr; <code>%APPDATA%\Autodesk\Revit\Addins\2025</code></div>
+            <div>Revit 2026 &rarr; <code>%APPDATA%\Autodesk\Revit\Addins\2026</code></div>
+          </div>
+        </li>
+        <li>
+          <strong>Restart Revit.</strong> The exporter shows up on the
+          <strong>Add-Ins</strong> tab.
+        </li>
+      </ol>
+      <div class="note">
+        <strong>First-time gotchas:</strong> If Windows blocks the DLL (it was downloaded
+        from the internet), right-click <code>RevitGbXmlExporter.dll</code> &rarr;
+        <strong>Properties</strong> &rarr; check <strong>Unblock</strong> &rarr; OK.
+        On first launch Revit will warn about an unsigned add-in &mdash; choose
+        <strong>Always Load</strong>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>How to use it</h2>
+      <p>
+        Open your Revit project, go to the <strong>Add-Ins</strong> tab, and run
+        <strong>gbXML Exporter for HAP</strong>. Pick what to include, click
+        <strong>Export</strong>, and a <code>.xml</code> file lands next to your project.
+        Import that file into HAP.
+      </p>
+      <p>
+        Full documentation, including the linked-architectural-model workflow, lives in
+        the <a href="https://github.com/DaltonGOO/revit-gbxml#readme">README on GitHub</a>.
+      </p>
+    </section>
+
+    <div class="disclaimer">
+      <strong>Heads up:</strong> this is beta software. It works on the models I've
+      tested, but always review the gbXML output and the resulting HAP loads before
+      using them for design decisions. Provided as-is, MIT licensed. Found a bug?
+      <a href="https://github.com/DaltonGOO/revit-gbxml/issues">Open an issue</a>.
+    </div>
+
+    <footer>
+      Built by <a href="https://daltongoo.github.io/">Dalton Goodwin</a> &middot;
+      <a href="https://github.com/DaltonGOO/revit-gbxml">Source on GitHub</a> &middot;
+      MIT License
+    </footer>
+
+  </div>
+
+  <script>
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function splitWords(el) {
+      if (!el) return [];
+      const words = (el.textContent || '').trim().split(/\s+/);
+      el.textContent = '';
+      return words.map(w => {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = w + ' ';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(12px)';
+        span.style.transition = 'opacity .5s ease-out, transform .5s ease-out';
+        el.appendChild(span);
+        return span;
+      });
+    }
+
+    function heroReveal() {
+      const h = document.querySelector('#hero-title');
+      if (!h) return;
+      if (prefersReduced) { h.style.opacity = 1; return; }
+      const parts = splitWords(h);
+      parts.forEach((span, i) => {
+        setTimeout(() => {
+          span.style.opacity = '1';
+          span.style.transform = 'translateY(0)';
+        }, i * 45);
+      });
+    }
+
+    function titleUnderline() {
+      const u = document.querySelector('.title-underline');
+      if (!u) return;
+      if (prefersReduced) { u.style.width = '60%'; return; }
+      u.style.transition = 'width .65s ease-out';
+      requestAnimationFrame(() => { u.style.width = '60%'; });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      heroReveal();
+      titleUnderline();
+    });
+  </script>
+</body>
+</html>
